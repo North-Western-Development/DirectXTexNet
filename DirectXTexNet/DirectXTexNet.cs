@@ -15,6 +15,7 @@ using ID3D11ResourcePtr = System.IntPtr;
 using ID3D11ShaderResourceViewPtr = System.IntPtr;
 using ID3D11DeviceContextPtr = System.IntPtr;
 using XMVectorPtr = System.IntPtr;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DirectXTexNet
 {
@@ -1158,23 +1159,27 @@ namespace DirectXTexNet
     {
         public static TexHelper Instance { get; private set; }
 
-        static TexHelper()
+        public static void LoadTexHelper()
         {
             string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string fileName = "DirectXTexNetImpl.dll";
-            string platform = Environment.Is64BitProcess ? "x64" : "x86";
-
-            foreach (var filePath in new[]
-                                     {
-                                         Path.Combine(folder, fileName),
-                                         Path.Combine(folder, platform, fileName),
-                                         Path.Combine(folder, "runtimes", "win-" + platform, "native", fileName)
-                                     })
+            Architecture architecture = RuntimeInformation.ProcessArchitecture;
+            string architectureForLibrary = "";
+            switch (architecture)
             {
-                if (File.Exists(filePath))
-                {
-                    LoadInstanceFrom(filePath);
-                }
+                case Architecture.X86:
+                    architectureForLibrary = "x86";
+                    break;
+                case Architecture.X64:
+                    architectureForLibrary = "x64";
+                    break;
+            }
+
+            string dllPath = Path.Combine(folder, "runtimes/win-" + architectureForLibrary, "native", fileName);
+
+            if(File.Exists(dllPath))
+            {
+                LoadInstanceFrom(dllPath);
             }
         }
 
