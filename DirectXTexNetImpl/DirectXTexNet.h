@@ -596,6 +596,8 @@ namespace DirectXTexNet
 
 		ScratchImage^ LoadFromTGAMemory(IntPtr pSource, Size_T size) override;
 
+		ScratchImage^ LoadFromTGAMemory(IntPtr pSource, Size_T size, TGA_FLAGS flags) override;
+
 		ScratchImage^ LoadFromTGAFile(String^ filename) override;
 
 		ScratchImage^ LoadFromWICMemory(IntPtr pSource, Size_T size, WIC_FLAGS flags) override;

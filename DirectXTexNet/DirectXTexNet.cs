@@ -15,7 +15,6 @@ using ID3D11ResourcePtr = System.IntPtr;
 using ID3D11ShaderResourceViewPtr = System.IntPtr;
 using ID3D11DeviceContextPtr = System.IntPtr;
 using XMVectorPtr = System.IntPtr;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DirectXTexNet
 {
@@ -335,6 +334,30 @@ namespace DirectXTexNet
         /// Enables the loader to read large dimension .dds files (i.e. greater than known hardware requirements)
         /// </summary>
         ALLOW_LARGE_FILES = 0x1000000,
+    }
+
+    [Flags]
+    public enum TGA_FLAGS
+    {
+        TGA_FLAGS_NONE = 0x0,
+
+        TGA_FLAGS_BGR = 0x1,
+        // 24bpp files are returned as BGRX; 32bpp files are returned as BGRA
+
+        TGA_FLAGS_ALLOW_ALL_ZERO_ALPHA = 0x2,
+        // If the loaded image has an all zero alpha channel, normally we assume it should be opaque. This flag leaves it alone.
+
+        TGA_FLAGS_IGNORE_SRGB = 0x10,
+        // Ignores sRGB TGA 2.0 metadata if present in the file
+
+        TGA_FLAGS_FORCE_SRGB = 0x20,
+        // Writes sRGB metadata into the file reguardless of format (TGA 2.0 only)
+
+        TGA_FLAGS_FORCE_LINEAR = 0x40,
+        // Writes linear gamma metadata into the file reguardless of format (TGA 2.0 only)
+
+        TGA_FLAGS_DEFAULT_SRGB = 0x80,
+        // If no colorspace is specified in TGA 2.0 metadata, assume sRGB
     }
 
     [Flags]
@@ -1161,7 +1184,7 @@ namespace DirectXTexNet
 
         public static void LoadTexHelper()
         {
-            string folder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string folder = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
             string fileName = "DirectXTexNetImpl.dll";
             Architecture architecture = RuntimeInformation.ProcessArchitecture;
             string architectureForLibrary = "";
@@ -1315,6 +1338,8 @@ namespace DirectXTexNet
 
         // TGA operations
         public abstract ScratchImage LoadFromTGAMemory(IntPtr pSource, Size_T size);
+
+        public abstract ScratchImage LoadFromTGAMemory(IntPtr pSource, Size_T size, TGA_FLAGS flags);
 
         public abstract ScratchImage LoadFromTGAFile(String szFile);
 

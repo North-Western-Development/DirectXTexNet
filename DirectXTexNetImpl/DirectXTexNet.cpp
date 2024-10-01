@@ -552,6 +552,23 @@ namespace DirectXTexNet
 			throw;
 		}
 	}
+	ScratchImage^ TexHelperImpl::LoadFromTGAMemory(IntPtr pSource, Size_T size, TGA_FLAGS flags)
+	{
+		auto image = gcnew ActualScratchImageImpl();
+		try
+		{
+			auto hr = DirectX::LoadFromTGAMemory(pSource.ToPointer(), static_cast<size_t>(size), static_cast<DirectX::TGA_FLAGS>(flags), nullptr, *image->scratchImage_);
+
+			Marshal::ThrowExceptionForHR(hr);
+
+			return image;
+		}
+		catch (Exception^)
+		{
+			delete image;
+			throw;
+		}
+	}
 	ScratchImage^ TexHelperImpl::LoadFromTGAFile(String^ filename)
 	{
 		pin_ptr<const wchar_t> filenameCStr = PtrToStringChars(filename);
@@ -1299,7 +1316,7 @@ namespace DirectXTexNet
 			static_cast<::D3D11_BIND_FLAG>(bindFlags),
 			static_cast<::D3D11_CPU_ACCESS_FLAG>(cpuAccessFlags),
 			static_cast<::D3D11_RESOURCE_MISC_FLAG>(miscFlags),
-			forceSRGB,
+			forceSRGB ? DirectX::CREATETEX_FORCE_SRGB : DirectX::CREATETEX_DEFAULT,
 			&texture);
 
 		Marshal::ThrowExceptionForHR(hr);
@@ -1336,7 +1353,7 @@ namespace DirectXTexNet
 			static_cast<::D3D11_BIND_FLAG>(bindFlags),
 			static_cast<::D3D11_CPU_ACCESS_FLAG>(cpuAccessFlags),
 			static_cast<::D3D11_RESOURCE_MISC_FLAG>(miscFlags),
-			forceSRGB,
+			forceSRGB ? DirectX::CREATETEX_FORCE_SRGB : DirectX::CREATETEX_DEFAULT,
 			&texture);
 
 		Marshal::ThrowExceptionForHR(hr);
